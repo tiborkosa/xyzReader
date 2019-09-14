@@ -1,5 +1,6 @@
 package com.example.xyzreader.ui;
 
+import android.app.ActivityOptions;
 import android.app.LoaderManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -7,9 +8,12 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.Loader;
 import android.database.Cursor;
+import android.graphics.drawable.GradientDrawable;
+import android.os.Build;
 import android.os.Bundle;
+import android.support.annotation.RequiresApi;
 import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.support.v7.widget.Toolbar;
@@ -38,7 +42,7 @@ import java.util.GregorianCalendar;
  * touched, lead to a {@link ArticleDetailActivity} representing item details. On tablets, the
  * activity presents a grid of items as cards.
  */
-public class ArticleListActivity extends ActionBarActivity implements
+public class ArticleListActivity extends AppCompatActivity implements
         LoaderManager.LoaderCallbacks<Cursor> {
 
     private static final String TAG = ArticleListActivity.class.toString();
@@ -57,10 +61,10 @@ public class ArticleListActivity extends ActionBarActivity implements
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_article_list);
 
-        mToolbar = (Toolbar) findViewById(R.id.toolbar);
+        //mToolbar = (Toolbar) findViewById(R.id.toolbar);
 
 
-        final View toolbarContainerView = findViewById(R.id.toolbar_container);
+        final View toolbarContainerView = findViewById(R.id.toolbar_layout);
 
         mSwipeRefreshLayout = (SwipeRefreshLayout) findViewById(R.id.swipe_refresh_layout);
 
@@ -144,10 +148,16 @@ public class ArticleListActivity extends ActionBarActivity implements
             View view = getLayoutInflater().inflate(R.layout.list_item_article, parent, false);
             final ViewHolder vh = new ViewHolder(view);
             view.setOnClickListener(new View.OnClickListener() {
+                @RequiresApi(api = Build.VERSION_CODES.LOLLIPOP)
                 @Override
                 public void onClick(View view) {
+
+                    Bundle bundle = ActivityOptions.
+                            makeSceneTransitionAnimation(
+                                    ArticleListActivity.this ).toBundle();
+
                     startActivity(new Intent(Intent.ACTION_VIEW,
-                            ItemsContract.Items.buildItemUri(getItemId(vh.getAdapterPosition()))));
+                            ItemsContract.Items.buildItemUri(getItemId(vh.getAdapterPosition()))),bundle);
                 }
             });
             return vh;
@@ -203,9 +213,15 @@ public class ArticleListActivity extends ActionBarActivity implements
 
         public ViewHolder(View view) {
             super(view);
-            thumbnailView = (DynamicHeightNetworkImageView) view.findViewById(R.id.thumbnail);
-            titleView = (TextView) view.findViewById(R.id.article_title);
-            subtitleView = (TextView) view.findViewById(R.id.article_subtitle);
+            thumbnailView = view.findViewById(R.id.thumbnail);
+            titleView = view.findViewById(R.id.article_title);
+            subtitleView = view.findViewById(R.id.article_subtitle);
+            GradientDrawable drawable = new GradientDrawable(
+                    GradientDrawable.Orientation.TOP_BOTTOM,
+                    new int[] { view.getResources().getColor(R.color.theme_primary),
+                            view.getResources().getColor(R.color.theme_primary_dark)
+            });
+            subtitleView.setBackground(drawable);
         }
     }
 }
